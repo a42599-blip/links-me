@@ -152,25 +152,27 @@ a.card:hover{border-color:rgba(255,212,121,.55)}
 })();
 </script>
 
+
 <script>
-/* FB／IG／LINE 內建瀏覽器：外部連結用「同頁」開啟（target=_blank 常導致回來時白屏）＋提供回首頁 */
+/* 內建瀏覽器（FB／IG／LINE／Messenger）相容處理
+   問題：① target=_blank 在 in-app 常開不起來或回來白屏 ② 酷澎/蝦皮會跳 App → 把 FB 內建瀏覽器踢掉 → 白畫面
+   做法：in-app 一律同頁開啟（_self）＋標記，並顯示「用 Safari/Chrome 開」提示 */
 (function () {
   var ua = navigator.userAgent || '';
   var inApp = /FBAN|FBAV|FB_IAB|Instagram|Line\//i.test(ua);
-  if (inApp) {
-    Array.prototype.forEach.call(document.querySelectorAll('a.card, a.sh[data-sh]'), function (a) {
-      a.removeAttribute('target');
-      a.setAttribute('rel', 'noopener');
-    });
-  }
   var back = document.createElement('a');
   back.id = 'backHome'; back.href = location.pathname; back.textContent = '⬅ 回首頁';
-  document.body.appendChild(back);
-  back.classList.add('on');
-  // 從外部返回時（pageshow）若頁面異常，給個提示
-  window.addEventListener('pageshow', function (e) {
-    if (e.persisted) back.classList.add('on');
-  });
+  document.body.appendChild(back); back.classList.add('on');
+  if (inApp) {
+    Array.prototype.forEach.call(document.querySelectorAll('a.card'), function (a) {
+      a.removeAttribute('target'); a.setAttribute('rel','noopener');
+    });
+    var tip = document.createElement('p');
+    tip.className = 'foot'; tip.style.marginTop = '14px'; tip.style.color = '#8fa6b4';
+    tip.textContent = '小提醒：在 FB／IG 裡面開，點酷澎或蝦皮可能會跳到 App、回來變白畫面。若變白，請點右上「⋯」選「在 Safari／Chrome 中開啟」，就完全正常。';
+    document.querySelector('.wrap').appendChild(tip);
+  }
+  window.addEventListener('pageshow', function (e) { if (e.persisted) back.classList.add('on'); });
 })();
 </script>
 </body>
