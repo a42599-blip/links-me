@@ -47,6 +47,13 @@ a.card:hover{border-color:rgba(255,212,121,.55)}
 .sh.copy{background:rgba(255,212,121,.14);color:var(--gold);border-color:rgba(255,212,121,.5);cursor:pointer;font-family:inherit}
 
 .grid.three a.card:nth-child(3){grid-column:span 2}
+
+/* 回首頁浮動鈕（FB／IG 內建瀏覽器點出去後容易白屏，這顆是救援） */
+#backHome{position:fixed;right:14px;bottom:calc(70px + env(safe-area-inset-bottom));z-index:60;
+  display:none;align-items:center;gap:6px;padding:10px 14px;border-radius:999px;
+  background:rgba(255,212,121,.16);border:1px solid rgba(255,212,121,.55);color:var(--gold);
+  font-size:13px;text-decoration:none;backdrop-filter:blur(6px)}
+#backHome.on{display:inline-flex}
 </style>
 </head>
 <body>
@@ -142,6 +149,28 @@ a.card:hover{border-color:rgba(255,212,121,.55)}
 
   // 桌機：直接把平台列顯示出來（不用先按）
   if (!canNative()) showRow();
+})();
+</script>
+
+<script>
+/* FB／IG／LINE 內建瀏覽器：外部連結用「同頁」開啟（target=_blank 常導致回來時白屏）＋提供回首頁 */
+(function () {
+  var ua = navigator.userAgent || '';
+  var inApp = /FBAN|FBAV|FB_IAB|Instagram|Line\//i.test(ua);
+  if (inApp) {
+    Array.prototype.forEach.call(document.querySelectorAll('a.card, a.sh[data-sh]'), function (a) {
+      a.removeAttribute('target');
+      a.setAttribute('rel', 'noopener');
+    });
+  }
+  var back = document.createElement('a');
+  back.id = 'backHome'; back.href = location.pathname; back.textContent = '⬅ 回首頁';
+  document.body.appendChild(back);
+  back.classList.add('on');
+  // 從外部返回時（pageshow）若頁面異常，給個提示
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) back.classList.add('on');
+  });
 })();
 </script>
 </body>
